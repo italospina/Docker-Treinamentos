@@ -1,0 +1,2 @@
+ver imagens
+docker images

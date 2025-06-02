@@ -1,0 +1,2 @@
+desligar container
+docker stop adfad6cb8e53
