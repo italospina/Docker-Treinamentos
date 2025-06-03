@@ -1,0 +1,45 @@
+o que e multistage?
+# Multistage é uma técnica no Docker que permite criar imagens mais leves e eficientes, dividindo o processo de construção em várias etapas. Cada etapa pode usar uma imagem base diferente, permitindo que você copie apenas os artefatos necessários para a imagem final.
+
+# Exemplo de uso do multistage
+
+1-Criar um diretorio
+mkdir multistage
+
+2- baixar as imagens base
+docker pull golang
+docker pull alpine
+
+3-criar arquvivo golang
+nano app.go
+
+package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Hello from Go!")
+}
+
+4-Criar o Dockerfile
+nano Dockerfile
+
+# Etapa 1: build
+FROM golang:1.20-alpine AS build         # Usa a imagem oficial Go 1.20 baseada em Alpine para compilar o binário
+WORKDIR /app                             # Define /app como diretório de trabalho
+COPY app.go .                            # Copia o código-fonte app.go para /app
+RUN go build -o app app.go               # Compila app.go, gerando o executável “app” em /app
+
+# Etapa 2: runtime
+FROM alpine:latest                       # Usa imagem Alpine mínima para rodar o binário
+WORKDIR /appexec                         # Define /appexec como diretório de trabalho
+COPY --from=build /app/app .             # Copia o binário “app” do estágio de build para /appexec
+CMD ["./app"]                            # Executa o arquivo “./app” quando o container iniciar
+
+
+5-Criar a imagem
+docker image build -t app-go:1.0 .
+
+
+6-Executar a imagem
+docker run -ti --name meuappOKGOLANG app-go:1.0

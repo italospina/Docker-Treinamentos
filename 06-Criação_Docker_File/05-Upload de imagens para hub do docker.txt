@@ -1,0 +1,14 @@
+1-logar na conta do docker hub
+docker login
+
+2-criar a imagem
+docker image build -t italospina/app-go:1.0 .
+
+3-enviar a imagem para o docker hub
+docker push italospina/app-go:1.0
+
+4-verificar se a imagem foi enviada
+docker image ls
+
+5-trazer a imagem do docker hub
+docker pull italospina/app-go:1.0

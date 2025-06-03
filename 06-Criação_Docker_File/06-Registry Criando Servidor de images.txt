@@ -1,0 +1,20 @@
+1-baixar imagem do registry
+docker pull registry
+
+2-rodar o container do registry
+docker run -d -p 5000:5000 --restart=always --name registry registry:2
+
+3-logout do docker hub
+docker logout
+
+4 - criar a imagem com tag 
+docker image tag 4ca8cd50d1a5 localhost:5000/app-go:1.0
+
+5- curl para verificar se o registry esta rodando
+curl http://localhost:5000/v2/_catalog
+
+6- enviar a imagem para o registry
+docker push localhost:5000/app-go:1.0
+
+7-buscar a imagem
+docker pull localhost:5000/app-go:1.0
