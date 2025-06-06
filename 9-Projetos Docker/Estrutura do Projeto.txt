@@ -1,0 +1,29 @@
+# Estrutura esperada:
+ /data/compose/projeto-html-DIO/
+ ├── docker-compose.yml
+ ├── dockerfile
+ └── html/
+     ├── index.php
+     └── style.css
+
+#----------------------------------------------
+#COMO RODAR
+#----------------------------------------------
+cd /data/compose/projeto-html-DIO
+docker-compose up -d
+
+#----------------------------------------------
+#CASO DE ERRO-Parar todos containers e volumes
+#----------------------------------------------
+docker-compose down -v
+
+
+remova imagens pendentes para nao corromper
+#----------------------------------------------
+docker image prune -a -f
+docker volume prune -f
+
+#----------------------------------------------
+#ENTRAR NO BROWSER
+#----------------------------------------------
+http://<IP_DO_SERVIDOR>:8080/

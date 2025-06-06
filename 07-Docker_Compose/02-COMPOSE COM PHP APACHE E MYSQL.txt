@@ -1,0 +1,112 @@
+1- Criar uma pasta para criar o compose
+cd /data/compose
+mkdir php-mysql
+nano docker-compose.yml
+#==============================================
+#docker-compose.yml
+#==============================================
+version: "3.8"
+
+services:
+  web:
+    image: php:8.3-apache
+    ports:
+      - "4500:80"
+    volumes:
+      - /data/php-compose/:/app
+    networks:
+      - minha-rede
+
+  db:
+    image: mysql:9.3
+    environment:
+      MYSQL_ROOT_PASSWORD: "senha123"
+      MYSQL_DATABASE: "testedb"
+    ports:
+      - "3306:3306"
+    volumes:
+      - /data/mysql-compose:/var/lib/mysql
+    networks:
+      - minha-rede
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      MYSQL_ROOT_PASSWORD: "senha123"
+    ports:
+      - "8080:80"
+    volumes:
+      - /data/php-compose/admin/uploads.ini:/usr/local/etc/php/conf.d/php-phpmyadmin.ini
+    networks:
+      - minha-rede
+
+networks:
+  minha-rede:
+    driver: bridge
+
+nano dockerfile
+FROM php:8.3-apache
+RUN docker-php-ext-install mysqli
+-----------------------------------------------
+2- Criar uma pasta para salvar o uploads.ini
+cd /data/php-compose/admin
+
+#==============================================
+#uploads.ini
+#==============================================
+; uploads.ini
+file_uploads = On
+memory_limit = 500M
+upload_max_filesize = 500M
+post_max_size = 500M
+max_execution_time = 5000
+max_input_time = 5000
+max_file_uploads = 50000
+-----------------------------------------------
+3- Criar uma pasta para salvar a aplicação
+index.php
+cd /data/php-compose
+#==============================================
+#index.php
+#==============================================
+<!-- index.php -->
+<html>
+<head>
+  <title>Exemplo PHP</title>
+  <meta charset="ISO-8859-1">
+</head>
+<body>
+  <?php
+    ini_set("display_errors", 1);
+    echo 'Versão Atual do PHP: ' . phpversion() . '<br>';
+
+    $servername = "db";
+    $username   = "root";
+    $password   = "senha123";
+    $database   = "testedb";
+
+    $link = new mysqli($servername, $username, $password, $database);
+    if ($link->connect_errno) {
+      printf("Connect failed: %s\n", $link->connect_error);
+      exit();
+    }
+
+    $query = "SELECT * FROM tabela_exemplo";
+    if ($result = $link->query($query)) {
+      while ($row = $result->fetch_assoc()) {
+        printf("%s %s %s<br>", $row["nome"], $row["cidade"], $row["salario"]);
+      }
+      $result->free();
+    }
+
+    $link->close();
+  ?>
+</body>
+</html>
+-----------------------------------------------
+4-executar o docker compose
+docker-compose up -d
+-----------------------------------------------
+5-acessar o browser
+http://192.168.1.111:8080/
+http://192.168.1.111:4500/

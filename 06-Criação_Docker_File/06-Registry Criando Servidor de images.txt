@@ -18,3 +18,4 @@ docker push localhost:5000/app-go:1.0
 
 7-buscar a imagem
 docker pull localhost:5000/app-go:1.0
+

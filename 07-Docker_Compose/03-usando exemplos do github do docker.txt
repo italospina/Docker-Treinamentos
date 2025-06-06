@@ -1,0 +1,70 @@
+1-usaremos esse Exemplo
+https://github.com/docker/awesome-compose/blob/master/nextcloud-redis-mariadb/compose.yaml
+
+2-entre na pasta cloud
+cd /data/compose/cloud
+
+3- nano docker-compose.yml
+version: "3.7"
+
+services:
+  nc:
+    image: nextcloud:apache
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - nc_data:/var/www/html
+    networks:
+      - redisnet
+      - dbnet
+    environment:
+      - REDIS_HOST=redis
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=nextcloud
+
+  redis:
+    image: redis:alpine
+    restart: always
+    networks:
+      - redisnet
+    expose:
+      - "6379"
+
+  db:
+    image: mariadb:10.5
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    restart: always
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - dbnet
+    environment:
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_ROOT_PASSWORD=nextcloud
+      - MYSQL_PASSWORD=nextcloud
+    expose:
+      - "3306"
+
+volumes:
+  db_data:
+  nc_data:
+
+networks:
+  dbnet:
+  redisnet:
+
+3-executar
+docker-compose up -d
+
+4-entrar no browser
+http://192.168.1.111:80
+
+5- criar conta admin
+
+6- os arquivos da nuvem serao salvos nesse diretorio
+/var/lib/docker/volumes/cloud_db_data/_data
+

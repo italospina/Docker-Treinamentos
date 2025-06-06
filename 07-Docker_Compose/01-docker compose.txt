@@ -1,0 +1,62 @@
+/*
+O que é docker compose
+compartilha aplicativo com varios containers
+voce cria um arquivo yaml e com unico comando rodar ou parar os containers.
+*/
+
+1- Instalar Docker compose
+apt-get install -y docker-compose
+
+2- Criar uma pasta para slavar esses dados
+mkdir mysql-compose
+cd mysql-compose
+cd ..
+mkdir compose
+cd compose
+mkdir primeiro
+
+3-definir o texto
+nano docker-compose.yml
+
+version: "3.8"
+
+services:
+  mysqlsrv:
+    image: mysql:9.3
+    environment:
+      MYSQL_ROOT_PASSWORD: "senha123"
+      MYSQL_DATABASE: "testedb"
+    ports:
+      - "3306:3306"
+    volumes:
+      - /data/mysql-compose:/var/lib/mysql
+    networks:
+      - minha-rede
+
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+    networks:
+      - minha-rede
+
+networks:
+  minha-rede:
+    driver: bridge
+
+4-subir os dois de uma só vez em segundo ploano
+docker-compose up -d
+
+5- pegar o ip e acessar na web
+http://192.168.1.111:8080/
+
+
+Sistema: MySQL / MariaDB v
+Servidor: mysqlsrv
+Usuário: root
+Senha: senha123
+Base de dados: testedb
+
+6-Para desligar o compose
+docker-compose down
+

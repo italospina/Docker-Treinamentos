@@ -1,0 +1,12 @@
+Remova containers parados:
+docker container prune -f
+
+Remova imagens não referenciadas:
+docker image prune -a -f
+
+Remova volumes órfãos:
+docker volume prune -f
+
+(Opcional) Limpeza geral:
+docker system prune -a --volumes -f
+
