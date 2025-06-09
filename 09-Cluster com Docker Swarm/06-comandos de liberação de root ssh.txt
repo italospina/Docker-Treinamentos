@@ -1,0 +1,34 @@
+EM CADA NÓ TEREMOS QUE LIBERAR O ACESSO AO ROOT PRA FACILITAR NOSSA VIDA
+
+📝 2. Edite o arquivo de configuração do SSH
+bash
+sudo nano /etc/ssh/sshd_config
+
+Modifique ou adicione as seguintes linhas:
+PermitRootLogin yes
+PasswordAuthentication yes
+
+🔐 3. Defina uma senha para o root (se ainda não existir)
+sudo passwd root
+
+🔁 4. Reinicie o serviço SSH
+sudo systemctl restart ssh
+
+✅ 5. Teste novamente:
+No node02 ou outro terminal:
+ssh root@192.168.56.11
+
+==============================================
+ADICIONAR MANUEALMENTE O ACESSO PELO Nome
+-=============================================
+No seu nó local (ou em todos), edite:
+sudo nano /etc/hosts
+
+Adicione as linhas com os IPs reais:
+192.168.56.11  node01
+192.168.56.12  node02
+192.168.56.13  node03
+192.168.56.14  node04
+
+Depois disso, comandos como:
+ssh root@node02

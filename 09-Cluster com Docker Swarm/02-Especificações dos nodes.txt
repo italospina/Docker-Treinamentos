@@ -12,7 +12,7 @@ root->sudo su
 docker swarm init --advertise-addr 192.168.56.11
 
 2-com isso é gerado um token e dar esse comando nos outros nodes para juntar os outros nodes ao servidor
-docker swarm join --token SWMTKN-1-3arsdkj2ahpnls0gtx35n43d8g65w91q7pj6c827yhhsot0yie-ahiyr5dofeferemdp9z8nx9db 192.168.56.11:2377
+docker swarm join --token SWMTKN-1-332qor9sux411nfpq3b8hxeyyd22hdh5bcthlq1b3a8dm5g2as-bpmanzecd2l903qcpyinlslhi 192.168.56.11:2377
 
 3-ver os nodes
 docker node ls

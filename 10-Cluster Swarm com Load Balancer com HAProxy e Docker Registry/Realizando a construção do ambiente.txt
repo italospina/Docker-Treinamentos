@@ -1,0 +1,106 @@
+2-Criar o arquivo haproxy.cfg
+#Crie o diretório (se quiser organizar):
+mkdir -p /root/haproxy
+cd /root/haproxy
+
+#Crie o arquivo haproxy.cfg:
+nano /root/haproxy.cfg
+
+#Cole o conteúdo:
+global
+    daemon
+    maxconn 256
+
+defaults
+    mode http
+    timeout connect 5000ms
+    timeout client 50000ms
+    timeout server 50000ms
+
+frontend http_front
+    bind *:80
+    default_backend php_servers
+
+backend php_servers
+    balance roundrobin
+    server node02 192.168.56.12:80 check
+    server node03 192.168.56.13:80 check
+    server node04 192.168.56.14:80 check
+
+#Confirme se está correto:
+cat /root/haproxy/haproxy.cfg
+
+3-Subir o serviço HAProxy
+docker service create \
+--name haproxy \
+--publish 80:80 \
+--constraint 'node.hostname == node01' \
+--mount type=bind,source=/root/haproxy/haproxy.cfg,target=/usr/local/etc/haproxy/haproxy.cfg \
+haproxy:alpine
+
+4-Criar um index.php básico no volume app
+
+#Criar o volume (se ainda não existir)
+docker volume create app
+
+#Montar o volume localmente para inserir os arquivos
+Como o volume está apenas no Docker, você pode acessá-lo diretamente assim no manager (node01):
+cd /var/lib/docker/volumes/app/_data
+
+# criar o arquivo index.php
+C:\Users\italo\OneDrive\Documentos\Treinamento\Docker-Treinamentos\10-Cluster Swarm com Load Balancer com HAProxy e Docker Registry\index.php
+
+5-Criar o dockerfile
+#diretorio
+/apache-php-mysql
+
+#dockerfile (node1)
+FROM php:8.3-apache
+RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
+
+#executar o build (node1)
+docker build -t php:8.3-apache-mysqli /apache-php-mysql
+
+6-PRECISAMOS INSTALAR O NFS-SERVER
+apt-get install nfs-server -y
+
+5-agora editar o arquivo de configuracao onde #vamos replicar
+nano /etc/exports
+
+/var/lib/docker/volumes/app/_data *(rw,sync,subtree_check)
+
+#para exportar
+exportfs -ar
+
+#para reiniciar 
+systemctl restart nfs-server
+
+6-criar um arquivo para automatizar
+C:\Users\italo\OneDrive\Documentos\Treinamento\Docker-Treinamentos\10-Cluster Swarm com Load Balancer com HAProxy e Docker Registry\setup_registry_phpservice.sh
+
+
+
+
+
+
+
+
+
+
+6-Enviar o dockerfile para os ambientes do node01
+
+#Se você rodar:
+scp -r /apache-php-mysql root@192.168.56.12:/apache-php-mysql 
+scp -r /apache-php-mysql root@192.168.56.13:/apache-php-mysql 
+scp -r /apache-php-mysql root@192.168.56.14:/apache-php-mysql 
+
+#E o diretório /apache-php-mysql ainda não existir no destino, ele será criado automaticamente junto com a cópia.
+
+#🔸 Porém, se você quiser copiar apenas o arquivo .tar.gz e não a pasta inteira, aí sim o diretório precisa existir:
+scp php83.tar.gz root@192.168.56.12:/apache-php-mysql/ \
+scp php83.tar.gz root@192.168.56.13:/apache-php-mysql/ \
+scp php83.tar.gz root@192.168.56.14:/apache-php-mysql/ \
+
+#❗ Esse comando vai falhar se /apache-php-mysql ainda não existir no destino.
+
+7-

@@ -1,0 +1,45 @@
+6-Docker Registry privado no seu cluster Swarm
+/*
+usar um Registry Docker privado no seu próprio cluster, para que:
+Você só precise buildar a imagem no node01 (ou em qualquer nó)
+Os outros nós puxem automaticamente via docker service create
+Não precise de scp, docker load, nem docker save
+*/
+
+#criar o service
+docker service create \
+--name registry \
+--publish published=5000,target=5000 \
+--constraint 'node.hostname == node01' \
+--mount type=volume,source=registry_data,target=/var/lib/registry \
+registry:2
+
+#Configurar todos os nós para confiar no registry
+Em todos os nós (node01 a node04), edite:
+
+nano /etc/docker/daemon.json
+
+#Adicione (ou edite) o conteúdo:
+
+{
+  "insecure-registries": ["192.168.56.11:5000"]
+}
+
+#Depois, reinicie o Docker em todos os nós:
+
+systemctl restart docker
+
+7- Buildar e enviar sua imagem para o registry
+#No node01:
+
+docker build -t 192.168.56.11:5000/php:8.3-apache-mysqli /apache-php-mysql
+docker push 192.168.56.11:5000/php:8.3-apache-mysqli
+
+8-Subir o serviço phpservice com a imagem do registry
+#No node01:
+
+docker service create \
+--name phpservice \
+--replicas 15 \
+--mount type=volume,source=app,target=/var/www/html \
+192.168.56.11:5000/php:8.3-apache-mysqli
