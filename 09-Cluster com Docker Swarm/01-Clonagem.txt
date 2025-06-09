@@ -1,0 +1,50 @@
+1-Baixar o vagrant - Ele identifica automaticamente o software de virtualização que voce tenha e faz todo o trabalho de clonagem das maquinas
+https://developer.hashicorp.com/vagrant/install
+
+2-precisa de uma IDE com o vs code
+
+3-Criar uma pasta(00-Vagrant-Lab) e abrir o terminal nela e digitar 
+vagrant init
+
+4-o arquivo Vagrantfile foi criado então abra-o
+=============
+ALTERAÇÕES
+=============
+5-muda config.vm.box para a base que voce deseja
+config.vm.box = "bento/ubuntu-22.04"
+
+6-descomente config.vm.network "private_network" na sessao de private network
+config.vm.network "private_network"
+
+7-descomentar a linha config.vm.provision para falar quais apps voce quer que venha instalado
+config.vm.provision "shell", path: "instalar-docker.sh"
+
+8-salvar
+
+=============
+ARQUIVO DE INSTALACAO DO DOCKER
+=============
+9- CRIAR O ARQUIVO DE INSTALACAO DO DOCKER NA MESMA pasta
+instalar-docker.sh
+
+10-ir no site do docker docs https://docs.docker.com/engine/install/ubuntu/ e pegar a instalacao via terminal e salvar
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh ./get-docker.sh
+
+==========
+LIGAR O VAGRANT
+==========
+11- dar o comando no terminal da pasta para subir os comandos do vagrant
+vagrant up
+
+12- destruir a maquina
+vagrant destroy --force
+
+
+cd .\.vagrant\machines\node01\virtualbox
+
+Remove-Item action_provision.lock
+------------------------------------------
+------------------------------------------
+------------------------------------------
+

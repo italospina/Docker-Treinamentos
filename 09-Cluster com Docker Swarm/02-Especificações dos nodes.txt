@@ -1,0 +1,31 @@
+------------------------------------------
+FOI CRIADO um novo nó de dominios
+Docker-Treinamentos\00-Vagrant-Lab\lab-docker-vagrant-professor
+node01-192.168.56.11 -> manager
+node02-192.168.56.12
+node03-192.168.56.13
+node04-192.168.56.14
+
+root->sudo su
+-------------------
+1-Para fazermos dele o nosso manager precisamos dar um comando a isso
+docker swarm init --advertise-addr 192.168.56.11
+
+2-com isso é gerado um token e dar esse comando nos outros nodes para juntar os outros nodes ao servidor
+docker swarm join --token SWMTKN-1-53yq0opvml8g4blhrogj2uhwhzgro698pdnkfkl19t5heufwiy-e9taywhpuvxyh043scdcz5v1d 192.168.56.11:2377
+
+3-ver os nodes
+docker node ls
+ID                            HOSTNAME   STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
+trzos1rtospj0ncvehkx3i3mp *   node01     Ready     Active         Leader           28.2.2
+pz7cf2hpg7j46p3w1qjsyiiiy     node02     Ready     Active                          28.2.2
+q3vl8bs4hkip4h3qo7vp1kwj3     node03     Ready     Active                          28.2.2
+wkeog25ha80auhmcjtrilglmn     node04     Ready     Active                          28.2.2
+
+4-parar os nodes
+vagrant halt - para de vez
+vagrant suspend -suspende
+vagrant resume - volta aonde paroiu
+
+
+

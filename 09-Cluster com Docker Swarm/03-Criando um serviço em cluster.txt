@@ -1,0 +1,37 @@
+1-Criar um serviço
+docker service create --name web-server --replicas 15 -p 8080:80 httpd
+
+2-verificar
+docker service ls
+docker service ps web-server
+
+3-caso voce queira que um dos seus nodes não receba container, voce deve eliminar/update o node
+docker node update --availability drain node01
+
+4-remover o services desse nó com
+docker service rm web-server
+
+5-realizar a atualização do passo 1 e depois verificar novamente
+docker service create --name web-server --replicas 15 -p 80:80 httpd
+
+6-atualizar o node1 para recerber novamente containers
+docker node update --availability active node01
+
+7- agora vamos criar um novo service tambem para o node 1
+docker service create --name web-server2 --replicas 15 -p 8080:80 nginx
+
+
+=====================
+6-comando de update
+=====================
+docker node update --help
+Usage:  docker node update [OPTIONS] NODE
+
+Update a node
+
+Options:
+      --availability string   Availability of the node ("active",
+                              "pause", "drain")
+      --label-add list        Add or update a node label ("key=value")
+      --label-rm list         Remove a node label if exists
+      --role string           Role of the node ("worker", "manager")
