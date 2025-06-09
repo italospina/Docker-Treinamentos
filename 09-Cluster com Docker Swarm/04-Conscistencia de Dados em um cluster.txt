@@ -1,0 +1,92 @@
+1- criar um volume
+docker volume create app
+
+2-ir para pasta e criar um arquivo simples
+cd /var/lib/docker/volumes/app/_data
+
+nano index.html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulário Simples</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        label, input {
+            display: block;
+            margin: 8px 0;
+        }
+        ul {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Cadastro de Pessoa</h1>
+    <form id="formPessoa">
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" name="nome" required>
+
+        <label for="idade">Idade:</label>
+        <input type="number" id="idade" name="idade" required>
+
+        <button type="submit">Salvar</button>
+    </form>
+
+    <h2>Lista de Pessoas:</h2>
+    <ul id="listaPessoas">
+        <li>João - 30 anos</li>
+        <li>Maria - 25 anos</li>
+    </ul>
+
+    <script>
+        const form = document.getElementById('formPessoa');
+        const lista = document.getElementById('listaPessoas');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nome = document.getElementById('nome').value;
+            const idade = document.getElementById('idade').value;
+            if (nome && idade) {
+                const item = document.createElement('li');
+                item.textContent = `${nome} - ${idade} anos`;
+                lista.appendChild(item);
+                form.reset();
+            }
+        });
+    </script>
+</body>
+</html>
+
+3-criar servico apache para executar o index.html
+
+docker service create --name meuapp --replicas 15 -dt -p 80:80 --mount type=volume,src=app,dst=/usr/local/apache2/htdocs/ httpd
+
+
+4-NOTE QUE NÃO REPLICOU NOS NÓS, PARA ISSO PRECISAMOS INSTALAR O NFS-SERVER
+apt-get install nfs-server -y
+
+5-agora editar o arquivo de configuracao onde vamos replicar
+nano /etc/exports
+
+/var/lib/docker/volumes/app/_data *(rw,sync,subtree_check)
+
+5-para exportar
+exportfs -ar
+-----------------
+6-instalar o servico nas outras maquina
+apt-get install nfs-common -y
+
+7-ver se tem acesso
+showmount -e 192.168.56.11
+
+8-precisa montar isso nos outros nós no mesmo caminho (ip da maquina principal)
+mount 192.168.56.11:/var/lib/docker/volumes/app/_data /var/lib/docker/volumes/app/_data
+
+9-agora todos os nos estao replicados

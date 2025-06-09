@@ -1,0 +1,81 @@
+1-Primeiramente iremos criar um novo container não replicavel, que n caso sera o banco de dados
+docker volume create data
+
+docker run -e MYSQL_ROOT_PASSWORD=senha123 -e MYSQL_DATABASE=meubanco --name mysql-A -d -p 3306:3306 --mount type=volume,src=data,dst=/var/lib/mysql mysql:9.3
+
+2-nesse container criaremos uma tabela pelo heidesql 
+
+3-adicionar um arquivo .php no /var/lib/docker/volumes/app/_data
+
+index.php
+<?php
+// Ativar exibição de erros
+ini_set("display_errors", 1);
+header('Content-Type: text/html; charset=iso-8859-1');
+
+// Exibir versão do PHP
+echo 'Versao Atual do PHP: ' . phpversion() . '<br>';
+
+// Dados da conexão
+$servername = "192.168.56.11";
+$username = "root";
+$password = "senha123";
+$database = "meubanco";
+
+// Criar conexão com MySQL usando mysqli
+$link = new mysqli($servername, $username, $password, $database);
+
+// Verificar conexão
+if (mysqli_connect_errno()) {
+    printf("Connect failed: %s\n", mysqli_connect_error());
+    exit();
+}
+
+// Gerar dados aleatórios
+$valor_rand1 = rand(1, 999);
+$valor_rand2 = strtoupper(substr(bin2hex(random_bytes(4)), 1));
+$host_name = gethostname();
+$host_ip = $_SERVER['REMOTE_ADDR'];
+
+// Inserir no banco
+$query = "INSERT INTO dados (id, data1, data2, hostname, ip) 
+          VALUES ('$valor_rand1', '$valor_rand2', '$valor_rand2', '$host_name', '$host_ip')";
+
+if ($link->query($query) === TRUE) {
+    echo "Novo registro inserido com sucesso.<br>";
+} else {
+    echo "Erro ao inserir: " . $link->error . "<br>";
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Exemplo PHP</title>
+</head>
+<body>
+    <p>Este é um exemplo de integração entre PHP e MySQL.</p>
+</body>
+</html>
+
+
+4-criaremos um diretorio de imagem para CADA NODE para rodar o dockerfile
+cd /apache-php-mysql
+
+5-dockerfile para CADA NODE
+nano dockerfile
+
+FROM php:8.3-apache
+
+RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
+
+6-construindo a imagem para CADA NODE
+docker build -t php:8.3-apache-mysqli .
+
+7-criar container com servidor apache e php somente no no principal
+docker service create \
+  --name meuapp \
+  --replicas 15 \
+  -p 80:80 \
+  --mount type=volume,src=app,dst=/var/www/html \
+  php:8.3-apache-mysqli
